@@ -1,0 +1,6 @@
+flask
+flask_restful
+pymongo
+bcrypt
+PyJWT==1.7.1
+Flask-Mail

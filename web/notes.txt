@@ -1,0 +1,43 @@
+sudo docker-compose up -d
+
+sudo docker ps -a
+
+sudo docker exec -it <Container name here> bash
+
+# For accessing mongo db database run
+mongo
+show dbs
+
+# for switching to collections
+show collections
+use <collection name>
+
+# for showing data values in collection
+db.Users.find().pretty()
+
+# for removing any document type
+db.COLLECTION_NAME.remove(DELETION CRITERIA)
+# e.g.
+db.Users.remove({"username": "furqan"})
+
+# for deleting collection from the database
+db.COLLECTION_NAME.drop()
+
+
+# for stopping the Container
+sudo docker-compose down
+
+
+# For sending emails through flask, read this blog:
+https://pythonbasics.org/flask-mail/
+
+
+
+
+
+
+
+
+
+
+

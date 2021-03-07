@@ -258,18 +258,11 @@ class SendVerificationCode(Resource):
 def protected():
     return jsonify({"message": "This is only available to people with valid token!"})
 
-# class Protected(Resource):
-#     @token_required
-#     def get(self):
-#         return jsonify({"message": "This is only available for valid tokens"})
-
 
 api.add_resource(Register, '/register')
 api.add_resource(Login, '/login')
 api.add_resource(SendVerificationCode, '/sendcode')
 api.add_resource(ForgetPass, '/resetpass')
-
-# api.add_resource(Protected, '/protected')
 
 
 if __name__ == "__main__":

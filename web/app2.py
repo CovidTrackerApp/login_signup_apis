@@ -16,10 +16,10 @@ api = Api(app)
 
 app.config["SECRET_KEY"] = "thisi-sth(esecret_key"
 # mail thing here
-app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_SERVER']='smtp.yandex.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'wamfcorp@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Cloud5500'
+app.config['MAIL_USERNAME'] = ''
+app.config['MAIL_PASSWORD'] = ''
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 # mail end here
@@ -236,7 +236,7 @@ class SendVerificationCode(Resource):
                 return jsonify(retJson)
 
             code = updateVerificationCode(email)
-            msg = Message('Hi there, Here is your verification code: {}'.format(code), sender = 'wamfcorp@gmail.com', recipients = [email])
+            msg = Message('Covid Tracker: {}'.format(code), sender = 'furqan4545@yandex.ru', recipients = [email])
             msg.body = "Here is your verification code: {}".format(code)
             mail.send(msg)
 

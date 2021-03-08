@@ -27,12 +27,28 @@ db.COLLECTION_NAME.drop()
 # for stopping the Container
 sudo docker-compose down
 
+# for checking docker images and containers
+docker images
+docker container
+
+docker images ls
+docker container ls
+
+docker container stop <container id>
+docker container start <container id>
+
+
 
 # For sending emails through flask, read this blog:
 https://pythonbasics.org/flask-mail/
 
 
+# The right protocol to use with smtp/mailing services is 465
+# specify username with complete domain name as well such as: Dont: furqan4545 except Do: furqan4545@yandex.ru
+# also the sender email should be same as the domain email which is furqan4545@yandex.ru
 
+# also note when u are using  smtp authentication as ->ssl then u need to use port 465 and if u are using tls then u need to use 
+# port 587 
 
 
 

@@ -40,13 +40,13 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = request.args.get("token") # http://127.0.0.1:5000/route?token=sdasdasdaqwesadaw
         if not token:
-            return jsonify({"message" : "Token is missing!"}), 403
+            return jsonify({"msg" : "Token is missing!", "status": 402})
 
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"])
 
         except:
-            return jsonify({"message" : "Token is invalid!"}), 403
+            return jsonify({"msg" : "Token is invalid!", "status": 403})
 
         return f(*args, **kwargs)
 
@@ -70,6 +70,19 @@ def verifyPw(username, password):
 
     hashed_pw = users.find({
         "username": username
+    })[0]["password"]
+
+    if bcrypt.hashpw(password.encode("utf8"), hashed_pw) == hashed_pw:
+        return True
+    else:
+        return False
+
+def verifyPwWithEmail(email, password):
+    if not EmailExist(email):
+        return False
+
+    hashed_pw = users.find({
+        "email": email
     })[0]["password"]
 
     if bcrypt.hashpw(password.encode("utf8"), hashed_pw) == hashed_pw:
@@ -124,7 +137,7 @@ class Register(Resource):
             
             if EmailExist(email):
                 retJson = {
-                    "status" : 301,
+                    "status" : 302,
                     "msg" : "Email is already registered"
                 }
                 return jsonify(retJson)
@@ -145,11 +158,15 @@ class Register(Resource):
                 "Token" : token,
                 "verification_code": 0
             })
+            retJson = {
+                "Token": token.decode('UTF-8'),
+                "status" : 200
+            }
 
-            return jsonify({"Token": token.decode('UTF-8')}, 200)
+            return jsonify(retJson)
         
         retJson = {
-            "status" : 301,
+            "status" : 303,
             "msg" : "Please fill all the fields."
         }
         return jsonify(retJson)
@@ -158,25 +175,35 @@ class Login(Resource):
     def post(self):
         postedData = request.get_json()
 
-        username = postedData["username"]
+        # username = postedData["username"]
+        email = postedData["email"]
         password = postedData["password"]
         
-        if username and password:
-            correct_pw = verifyPw(username, password)
+        if email and password:
+            correct_pw = verifyPwWithEmail(email, password)
 
             if not correct_pw:
                 retJson = {
-                    "Status" : 302,
+                    "status" : 301,
                     "msg" : "Invalid Password"
                 }
                 return jsonify(retJson)
 
             
-            token = jwt.encode({"user" : username, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config["SECRET_KEY"])
+            token = jwt.encode({"user" : email, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config["SECRET_KEY"])
             
-            return jsonify({"Token": token.decode('UTF-8')})
+            retJson = {
+                "Token" : token.decode('UTF-8'),
+                "status" : 200
+            }
 
-        return make_response("Fields can not be empty", 401, {"WWW-Authenticate" : 'Basic realm="Login Required"'}) 
+            return jsonify(retJson)
+
+        retJson = {
+            "msg" : "Fields can not be empty. Login required!",
+            "status" : 401
+        }
+        return jsonify(retJson)
 
 class ForgetPass(Resource):
     def post(self):
@@ -191,7 +218,7 @@ class ForgetPass(Resource):
 
             if new_password != confirm_password:
                 retJson = {
-                    "message": "Password doesn't match!",
+                    "msg": "Password doesn't match!",
                     "status" : 301 
                 }
                 return jsonify(retJson)
@@ -200,8 +227,8 @@ class ForgetPass(Resource):
 
             if db_code != code:
                 retJson = {
-                    "message": "The code didn't match!",
-                    "status" : 301 
+                    "msg": "The code didn't match!",
+                    "status" : 302 
                 }
                 return jsonify(retJson)
             
@@ -209,14 +236,14 @@ class ForgetPass(Resource):
             setNewPassword(email, hashed_password)
 
             retJson = {
-                "message" : "Password updated successfully.",
-                "Status" : 200
+                "msg" : "Password updated successfully.",
+                "status" : 200
             }
             return jsonify(retJson)
 
         retJson = {
             "message" : "Please fill all the fields",
-            "status" : 302
+            "status" : 303
         }
             
         return retJson
@@ -230,7 +257,7 @@ class SendVerificationCode(Resource):
         if email:
             if not EmailExist(email):
                 retJson = {
-                    "message" : "No such registered email",
+                    "msg" : "No such registered email",
                     "status" : 303
                 }
                 return jsonify(retJson)
@@ -241,14 +268,14 @@ class SendVerificationCode(Resource):
             mail.send(msg)
 
             retJson = {
-                "message": "Email has been sent to the registered email",
+                "msg": "Email has been sent to the registered email",
                 "status" : 200
             }            
             return jsonify(retJson)
 
         retJson = {
-            "message": "Email field can't be empty!",
-            "status": 303
+            "msg": "Email field can't be empty!",
+            "status": 302
         }
         return jsonify(retJson)
 
@@ -256,7 +283,7 @@ class SendVerificationCode(Resource):
 @app.route("/protected")
 @token_required
 def protected():
-    return jsonify({"message": "This is only available to people with valid token!"})
+    return jsonify({"msg": "This is only available to people with valid token!"})
 
 
 api.add_resource(Register, '/register')
